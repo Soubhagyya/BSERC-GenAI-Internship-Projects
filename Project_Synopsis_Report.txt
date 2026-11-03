@@ -1,0 +1,37 @@
+================================================================================
+DEF-SPACE PROGRAMME: PROJECT SYNOPSIS & EXECUTIVE SUMMARY
+Student Researcher: Soubhagyya Bhattacharya
+Programme: B.Tech (Computer Science & Engineering)
+Institution: Bharat Space Education Research Centre (BSERC)
+Instructor: Karan Bagul
+================================================================================
+
+1. PROJECT TITLES:
+- Project 1: Grounded Space Astrodynamics & Satellite Mechanics Research Notebook
+- Project 2: Thinking in HTML: Standalone Interactive Engineering & Orbital Simulation Suite
+
+2. PROBLEM STATEMENT:
+Modern conversational AI models frequently hallucinate facts when queried on specialized scientific subjects like orbital mechanics and astrodynamics, lacking direct source verification. Furthermore, typical AI responses are static walls of text that cannot be dynamically adjusted, recalculated, or tested offline.
+
+3. SOLUTION & OBJECTIVES:
+- Part 1: Design and deploy a strictly source-grounded research partner using Google NotebookLM, backed exclusively by authoritative aerospace literature (NASA, ESA, ISRO, and peer-reviewed physics lectures) with mandatory bracketed citations [1], [2].
+- Part 2: Build a suite of three zero-dependency, 100% offline, interactive web applications following an advanced 4-part prompt engineering framework (Who, What, Do, Rules) with multi-round iterative refinement.
+
+4. TECHNICAL ARCHITECTURE & IMPLEMENTATION:
+- Project 1 Architecture:
+  * Multi-modal corpus: 6 trusted sources spanning web technical documentation, video lecture transcripts, and mathematical derivations.
+  * System prompts enforcing zero out-of-bounds hallucination, native language synthesis in Bengali, and diagnostic assessment.
+  * Studio outputs: 2-host audio overview discussion, conceptual mind mapping, and flashcards.
+
+- Project 2 Architecture:
+  * Page 1 (Revision Command Center): Live target countdown timer, filterable 9-topic syllabus progress bar, 3D 180-degree flip active-recall flashcards, self-scoring 4-question diagnostic quiz, and localStorage scratchpad.
+  * Page 2 (Orbital Simulation Studio): 60-FPS native HTML5 Canvas physics engine modeling Earth gravitational fields, Keplerian orbits (LEO, MEO, GEO), real-time Vis-Viva velocity calculations, dynamic time-warp sliders, and satellite telemetry cards.
+  * Page 3 (Architecture Decision Matrix): Multi-criteria weighted trade-off engine with 5 normalized sliders, dynamic leaderboard sorting, real-time reactive SVG bar charts, strategy presets, and custom candidate adder.
+
+5. VERIFICATION & RESULTS:
+- Grounding verification: Zero hallucination confirmed through out-of-bounds boundary checks.
+- Code validity: 100% vanilla JavaScript, CSS3, and HTML5 Canvas with zero runtime console errors, verified mobile responsive, and functioning fully without an internet connection.
+
+6. CONCLUSION & FUTURE ROADMAP:
+The project bridges grounded AI research with interactive software engineering. Future extensions will incorporate real-time satellite telemetry APIs from ISRO/NASA missions and extend the orbital canvas into full multi-body gravitational perturbation modeling.
+================================================================================

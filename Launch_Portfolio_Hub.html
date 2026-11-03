@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Soubhagyya Bhattacharya">
+  <title>BSERC GenAI Internship Portfolio | Soubhagyya Bhattacharya</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 25, 41, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent: #58a6ff;
+      --purple: #bc8cff;
+      --success: #3fb950;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --surface: #161b22;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: radial-gradient(circle at top, #141f36, #090d16); color: var(--text); min-height: 100vh; padding: clamp(16px, 4vw, 40px); line-height: 1.5; }
+    .container { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+    header {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .brand-title h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    .brand-title p { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+    .badge { padding: 6px 14px; background: rgba(88, 166, 255, 0.15); border: 1px solid var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+
+    .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 860px) { .projects-grid { grid-template-columns: 1fr; } }
+
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .project-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card-head h2 { font-size: 1.3rem; font-weight: 700; }
+    .card-head span { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+    .features-list { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem; }
+    .features-list li::before { content: "✓ "; color: var(--success); font-weight: 700; }
+
+    .app-links { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--card-border); }
+
+    .btn-launch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-launch:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(88, 166, 255, 0.3);
+      transition: all 0.2s;
+      display: block;
+    }
+    .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand-title">
+        <h1>GenAI Internship — Project Portfolio</h1>
+        <p>Student: <strong>Soubhagyya Bhattacharya</strong> • Bharat Space Education Research Centre (BSERC)</p>
+      </div>
+      <div class="badge">Week 1 Complete Submission</div>
+    </header>
+
+    <div class="projects-grid">
+      
+      <!-- Project 1 Card -->
+      <div class="project-card">
+        <div class="card-head">
+          <div>
+            <span>PROJECT 1</span>
+            <h2>Source-Grounded AI Notebook</h2>
+          </div>
+          <span style="font-size: 1.5rem;">🪐</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--muted);">
+          Strictly grounded research notebook on Space Dynamics & Keplerian Satellite Astrodynamics with zero hallucination and direct inline citations.
+        </p>
+
+        <ul class="features-list">
+          <li><strong>6 Trusted Sources (3 Kinds):</strong> Web, YouTube video transcripts, and technical papers.</li>
+          <li><strong>Configured Grounding System:</strong> Strict source citations `[1]`, `[2]` and negative boundary tests.</li>
+          <li><strong>Native Language Synthesis:</strong> Executive summaries in Bengali.</li>
+          <li><strong>Studio Panel Outputs:</strong> Audio Overview podcast, Mind Map, Study Guide, Quiz, and Slide Deck.</li>
+        </ul>
+
+        <div class="app-links">
+          <a class="btn-launch" href="./Project 1 - Grounded AI Notebook/01_Sources_List_And_Links.txt" target="_blank">
+            <span>📄 View Sources Catalog & Links</span>
+            <span>→</span>
+          </a>
+          <a class="btn-launch" href="./Project 1 - Grounded AI Notebook/03_Chat_Configuration_Prompt.txt" target="_blank">
+            <span>⚙️ Chat Configuration Prompt</span>
+            <span>→</span>
+          </a>
+          <a class="btn-launch" href="./Project 1 - Grounded AI Notebook/04_Feature_Testing_Prompts.txt" target="_blank">
+            <span>🧪 5 Feature-Testing Prompts</span>
+            <span>→</span>
+          </a>
+          <a class="btn-launch" href="./Project 1 - Grounded AI Notebook/06_Project1_Submission_Walkthrough.txt" target="_blank">
+            <span>📋 Submission Walkthrough (Share Link)</span>
+            <span>→</span>
+          </a>
+          <a class="btn-primary" href="https://notebook.google.com" target="_blank">
+            Open Google NotebookLM ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Project 2 Card -->
+      <div class="project-card">
+        <div class="card-head">
+          <div>
+            <span>PROJECT 2</span>
+            <h2>Thinking in HTML (3 Web Apps)</h2>
+          </div>
+          <span style="font-size: 1.5rem;">💻</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--muted);">
+          Three interactive standalone single-file web applications built with zero external dependencies, 100% offline functionality, and full mobile responsiveness.
+        </p>
+
+        <ul class="features-list">
+          <li><strong>Page 1 (Dashboard):</strong> Countdown clock, 9-topic syllabus, 3D flip flashcards, and scored quiz.</li>
+          <li><strong>Page 2 (Simulation):</strong> 60-FPS HTML5 Canvas physics of LEO/MEO/GEO Keplerian orbits.</li>
+          <li><strong>Page 3 (Decision Matrix):</strong> 5 weighted criteria sliders, live re-ranking table, and dynamic SVG chart.</li>
+          <li><strong>Prompt Log:</strong> Documented 4-part framework and 4 iterative improvement rounds.</li>
+        </ul>
+
+        <div class="app-links">
+          <a class="btn-launch" href="./Project 2 - Thinking in HTML/page1_dashboard.html" target="_blank">
+            <span>⚡ Launch Page 1: Revision Command Center</span>
+            <span>🚀</span>
+          </a>
+          <a class="btn-launch" href="./Project 2 - Thinking in HTML/page2_model.html" target="_blank">
+            <span>🛰️ Launch Page 2: Orbital Mechanics Studio</span>
+            <span>🚀</span>
+          </a>
+          <a class="btn-launch" href="./Project 2 - Thinking in HTML/page3_decision.html" target="_blank">
+            <span>⚖️ Launch Page 3: Architecture Decision Matrix</span>
+            <span>🚀</span>
+          </a>
+          <a class="btn-launch" href="./Project 2 - Thinking in HTML/prompts.txt" target="_blank">
+            <span>📝 View Prompts History (.txt)</span>
+            <span>→</span>
+          </a>
+          <a class="btn-primary" href="./Soubhagyya_Project2.zip" download>
+            📦 Download Submission ZIP (Soubhagyya_Project2.zip)
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Designed & Built by Soubhagyya Bhattacharya • BSERC GenAI Internship Submission
+    </footer>
+  </div>
+
+</body>
+</html>
