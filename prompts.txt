@@ -1,0 +1,137 @@
+========================================================================
+BSERC GenAI Internship - Week 1: Project 2 Prompt History
+Student: Soubhagyya Bhattacharya
+Project Name: Thinking in HTML (3 Interactive Standalone Applications)
+========================================================================
+
+========================================================================
+SECTION 1: PROJECT 1 PROMPTS (Source-Grounded AI Notebook)
+========================================================================
+
+[Chat Configuration Prompt - Google NotebookLM]
+Plaintext:
+Act as a strictly grounded, domain-expert research partner specializing in our chosen topic. 
+
+Core Rules & Behavior:
+1. Grounding Mandate: Formulate answers exclusively using the sources uploaded to this notebook (PDFs, notes, web articles, and video transcripts). Never rely on external general memory or hallucinate facts.
+2. Direct Citations: Append exact inline bracketed citations [1], [2] to every factual assertion, linking directly back to the reference source.
+3. Out-of-Bounds Queries: If a query asks about information not directly found within the provided sources, explicitly state: "This information is not available in the uploaded sources."
+4. Tone & Style: Maintain an objective, highly structured academic and professional tone with bulleted summaries, comparative tables, and concise actionable synthesis.
+
+--- Feature-Testing Execution Prompts (Executed in Notebook Chat) ---
+Prompt 1 (Citation & Source Check):
+"Synthesize the 3 core principles and technical methodologies discussed across all uploaded documents. For each principle, include exact bracketed citations [1], [2] referencing the source title and section."
+
+Prompt 2 (Grounded Boundary / Negative Test):
+"What is the latest score in the ICC Cricket World Cup final, and who won the Player of the Match award? (Verify that the notebook explicitly tells you it cannot answer because the question is off-topic and absent from the sources)."
+
+Prompt 3 (Native Language Synthesis Output):
+"Generate a comprehensive executive summary and a 5-point key takeaway list of all uploaded study materials entirely in Bengali (or Hindi), maintaining exact technical terminology."
+
+Prompt 4 (Scored Diagnostic Quiz):
+"Create a 5-question multiple-choice diagnostic quiz based strictly on the uploaded materials. Include 4 distinct options per question, mark the correct option, explain why each is correct using source citations, and provide a short revision summary for wrong answers."
+
+Prompt 5 (Comprehensive Briefing Report / Study Guide):
+"Generate an executive briefing report organized into:
+1. Executive Abstract
+2. Key Architectural / Theoretical Pillars
+3. Comparison of Core Methodologies
+4. Practical Applications & Real-World Use Cases
+5. Frequently Asked Questions with inline citations"
+
+
+========================================================================
+SECTION 2: PROJECT 2 PROMPTS & ITERATIVE REFINEMENTS (Thinking in HTML)
+========================================================================
+
+--- PAGE 1: Revision & Exam Dashboard (page1_dashboard.html) ---
+
+Round 1 (Initial Generation - 4-Part Framework):
+"Act as an elite frontend engineer and UI/UX designer. Build a complete, interactive, responsive web page following this exact 4-part structure:
+1. WHO: An engineering student and competitive exam aspirant preparing for advanced technical examinations, needing to track syllabus progress, test retention, and manage revision schedules.
+2. WHAT: A 'Full-Stack Revision Command Center' dashboard that includes an active countdown timer, interactive syllabus tracker, flashcard testing system, and an integrated scored quiz.
+3. DO (Include at least 6 distinct interactive mechanisms):
+- Live Exam Target Countdown: A customizable countdown clock showing days, hours, minutes, and seconds, with an input to change the exam target date live.
+- Filterable Syllabus Checklist: A list of 8+ complex topics with status checkboxes ('Not Started', 'Revising', 'Mastered') and category filter buttons ('All', 'Hardware/Arch', 'Algorithms', 'Databases') that dynamically update an overall percentage progress bar.
+- Interactive Study Flashcards: An active-recall flashcard component that flips 180 degrees on click to show answers, with 'Next Card', 'Previous Card', and 'Shuffle' buttons.
+- Self-Scoring Practice Quiz: A 4-question interactive diagnostic test with instant score calculation, right/wrong visual highlights, and a 'Retake Quiz' reset button.
+- Daily Study Goal Slider: An interactive range slider (1 to 12 hours) that dynamically calculates and displays recommended revision break intervals and hydration alerts.
+- Quick Notes Scratchpad: An interactive local notepad with 'Save Note' and 'Clear' buttons that keeps revision notes active on the page.
+- Theme Switcher: A toggle switch between Dark Mode and Light Mode with seamless CSS transition.
+4. RULES:
+- Provide the entire application as one complete HTML file in a single code block containing all HTML structure, clean CSS styling (modern glassmorphism, responsive CSS grid/flexbox), and vanilla JavaScript.
+- Zero external libraries or CDNs (no Tailwind, no Bootstrap, no external scripts or Google fonts). Everything must function 100% offline.
+- Fully mobile and laptop responsive. Ensure every single button, slider, filter, and flip-card works flawlessly without console errors.
+- Populate with realistic, professional technical sample data.
+End with: 'one complete HTML file in a single code block'."
+
+Round 2 (UI & Mobile Responsive Fix):
+"The flashcard flip animation overflows on mobile screens under 420px width. Please update the CSS to use clamp() sizing and ensure the cards flip smoothly without horizontal scrolling."
+
+Round 3 (Interactive Enhancement):
+"Add a quick search input bar above the syllabus checklist so users can filter topics by typing keywords in real time."
+
+Round 4 (Persistence & Edge Case Polish):
+"Ensure that when the quiz is completed, the final score card shows an emoji badge based on percentage, and clicking 'Retake Quiz' resets the radio buttons cleanly."
+
+
+--- PAGE 2: Orbital Mechanics Model Explorer (page2_model.html) ---
+
+Round 1 (Initial Generation - 4-Part Framework):
+"Act as a senior creative web developer and graphics engineer. Build an interactive, standalone educational simulation web tool following this exact 4-part structure:
+1. WHO: A space science researcher and engineering student exploring orbital dynamics, satellite coverage paths, and gravitational parameters.
+2. WHAT: An 'Interactive Orbital Mechanics & Satellite Simulation Studio' featuring a real-time animated HTML5 2D/3D-perspective canvas with live physical adjustment controls and telemetry readouts.
+3. DO (Include at least 6 distinct interactive mechanisms):
+- Real-Time HTML5 Physics Canvas: A smooth 60 FPS animation loop depicting a central planet and multiple satellites in elliptical orbits with animated orbital trails.
+- Orbital Speed Slider: A range slider adjusting simulation speed from 0x (complete pause/freeze) to 5x orbital velocity with a real-time numeric display.
+- Altitude & Orbit Radius Slider: An interactive range slider that dynamically expands or compresses satellite orbital radii, instantly updating orbital period calculations.
+- Orbit Visualizer Filter: Toggle checkboxes to turn ON/OFF orbital trail paths, velocity vectors, and communication signal footprints.
+- Interactive Satellite Selector: Clickable radio buttons or buttons to switch focus between 'Satellite Alpha (LEO)', 'Orbiter Beta (MEO)', and 'GeoComm (GEO)', displaying real-time telemetry specs (speed, altitude, coordinates) in an inspection card.
+- Celestial Theme Selector: A dropdown menu switching canvas rendering modes between 'Deep Space Neon', 'Radar Thermal', and 'Minimal Wireframe'.
+- Simulation Reset Button: A button to instantly restore all orbital coordinates, velocities, and sliders back to initial default parameters.
+4. RULES:
+- Provide the entire application as one complete HTML file in a single code block containing all HTML, CSS, and vanilla JavaScript using the native HTML5 Canvas API.
+- Zero external dependencies, libraries, or 3D CDNs (no Three.js, no external imports). Everything must be implemented with vanilla JavaScript and native 2D canvas transformation math.
+- Responsive layout that fits both desktop widescreen and touch-enabled mobile screens.
+- Ensure zero lag, buttery-smooth frame rates, and fully operational controls.
+End with: 'one complete HTML file in a single code block'."
+
+Round 2 (Canvas Scaling & Aspect Ratio):
+"Adjust the canvas context so it dynamically resizes when the browser window is resized, maintaining high DPI sharpness on Retina displays without stretching."
+
+Round 3 (Controls Refinement):
+"Add a pause/play button next to the speed slider so the user can freeze the simulation with a single click."
+
+Round 4 (Visual Polish):
+"Enhance the orbital trails by adding a slight fading particle effect behind each satellite body to make the trajectories visually distinct."
+
+
+--- PAGE 3: Decision Helper & Trade-Off Matrix (page3_decision.html) ---
+
+Round 1 (Initial Generation - 4-Part Framework):
+"Act as a principal software architect and UI engineer. Build an executive-level, interactive trade-off comparison engine following this exact 4-part structure:
+1. WHO: A tech lead, product engineer, or student researcher deciding between competing cloud/software architecture designs or tech stacks for a mission-critical project.
+2. WHAT: A 'Multi-Criteria Decision Matrix & Architecture Evaluator' that calculates weighted scores across 4 baseline options and dynamically re-ranks leaderboards in real time as user priorities change.
+3. DO (Include at least 6 distinct interactive mechanisms):
+- 5 Criteria Weight Sliders: Individual range sliders (0% to 100%) for 'Development Cost', 'Scalability / Throughput', 'System Latency', 'Implementation Speed', and 'Security & Compliance', complete with live numerical percentage readouts.
+- Live Dynamic Ranking Table: A leaderboard table comparing 4 technical options (e.g., Serverless Microservices, Monolithic Architecture, Edge Computing, Hybrid Kubernetes) that automatically sorts, recalculates total weighted scores, and shifts positions with smooth visual rank badges (1st, 2nd, 3rd, 4th).
+- Interactive Dynamic SVG/CSS Bar Chart: A custom visual chart whose comparative bars grow, shrink, and update color states immediately as slider values change.
+- Option Inclusion Filter: Checkboxes allowing users to toggle specific options ON or OFF to run head-to-head comparisons between any 2 or 3 architectures.
+- Strategy Preset Selector: Quick-preset buttons ('Startup Speed', 'Enterprise Security', 'Cost Minimization', 'Balanced') that automatically configure all 5 sliders with pre-calibrated weights.
+- Custom Candidate Adder: An interactive modal/form allowing the user to type a new system name, rate its 5 criteria scores, and add it dynamically to the live leaderboard.
+- Factory Reset Button: A button to wipe custom options and restore default weights with instant UI refresh.
+4. RULES:
+- Provide the entire application as one complete HTML file in a single code block containing all HTML, responsive modern CSS (dark theme, data tables, animated bars), and vanilla JavaScript.
+- Zero external libraries, CDNs, or graphing plugins (build the dynamic charts with pure native CSS/SVG and JS DOM manipulation).
+- Must work flawlessly on laptop browsers as well as mobile touchscreens.
+- Provide mathematically accurate weighted score calculations: Total = Sum(Weight_i * Score_i) / Sum(Weights).
+End with: 'one complete HTML file in a single code block'."
+
+Round 2 (Mathematical Recalculation Fix):
+"Normalize the slider weights dynamically so that the displayed weighted score is always scaled out of 100 points, even if all sliders are set to maximum."
+
+Round 3 (Sorting & Animation Polish):
+"When the slider moves, animate the ranking table rows so the re-sorting transition is visually smooth."
+
+Round 4 (Preset Buttons & Reset):
+"Add an active highlight state to whichever preset strategy button was clicked so the user knows which mode is currently selected."

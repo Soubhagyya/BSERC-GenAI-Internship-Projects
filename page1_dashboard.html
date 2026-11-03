@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Soubhagyya Bhattacharya">
+  <meta name="description" content="Technical Examination Revision & Mastery Command Center">
+  <title>Revision Command Center | Engineering Study Dashboard</title>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top left, #0d1117, #161b22, #0a0c10);
+      --card-bg: rgba(22, 27, 34, 0.75);
+      --card-border: rgba(240, 246, 252, 0.1);
+      --card-hover: rgba(56, 139, 253, 0.15);
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #1f6feb;
+      --accent-glow: rgba(88, 166, 255, 0.3);
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --purple: #bc8cff;
+      --surface: #21262d;
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --radius: 14px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-gradient: radial-gradient(circle at top left, #f6f8fa, #eaeff5, #e1e7ee);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(27, 31, 36, 0.12);
+      --card-hover: rgba(9, 105, 218, 0.08);
+      --text-main: #1f2328;
+      --text-muted: #59636e;
+      --accent: #0969da;
+      --accent-hover: #0550ae;
+      --accent-glow: rgba(9, 105, 218, 0.2);
+      --success: #1a7f37;
+      --warning: #9a6700;
+      --danger: #cf222e;
+      --purple: #8250df;
+      --surface: #ffffff;
+      --glass-shadow: 0 8px 28px 0 rgba(140, 149, 159, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: clamp(12px, 3vw, 28px);
+      transition: background 0.3s ease, color 0.3s ease;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 20px;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .brand h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .theme-toggle-btn {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 22px;
+    }
+
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-7 { grid-column: span 7; }
+    .col-6 { grid-column: span 6; }
+    .col-5 { grid-column: span 5; }
+    .col-4 { grid-column: span 4; }
+
+    @media (max-width: 992px) {
+      .col-8, .col-7, .col-6, .col-5, .col-4 {
+        grid-column: span 12;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: clamp(16px, 2.5vw, 24px);
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      border-color: var(--card-hover);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title span.badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-weight: 500;
+    }
+
+    /* Target Countdown */
+    .countdown-banner {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .countdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .target-picker-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+    }
+
+    .target-picker-group input[type="datetime-local"] {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .target-picker-group input[type="datetime-local"]:focus {
+      border-color: var(--accent);
+    }
+
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .timer-tile {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-tile::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+    }
+
+    .timer-val {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Progress & Syllabus Checklist */
+    .progress-bar-container {
+      margin-bottom: 18px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: var(--surface);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 8px;
+      transition: width 0.4s ease;
+    }
+
+    .syllabus-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-pill {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-pill:hover, .filter-pill.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .syllabus-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .syllabus-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      gap: 12px;
+      transition: var(--transition);
+    }
+
+    .syllabus-item:hover {
+      border-color: var(--accent);
+    }
+
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .item-cat {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(88, 166, 255, 0.12);
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-select {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .status-select[data-val="Mastered"] { color: var(--success); font-weight: 600; }
+    .status-select[data-val="Revising"] { color: var(--warning); font-weight: 600; }
+    .status-select[data-val="Not Started"] { color: var(--text-muted); }
+
+    /* Flashcards with 3D Flip */
+    .flashcard-wrapper {
+      perspective: 1000px;
+      width: 100%;
+      height: 240px;
+      margin: 10px 0 16px 0;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 12px;
+      padding: clamp(14px, 3vw, 24px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--card-border);
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, var(--surface), var(--card-bg));
+      color: var(--text-main);
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, #162436, #1c2a38);
+      color: #ffffff;
+      transform: rotateY(180deg);
+      border-color: var(--accent);
+    }
+
+    [data-theme="light"] .card-back {
+      background: linear-gradient(145deg, #e7f1ff, #f0f6ff);
+      color: #1f2328;
+    }
+
+    .fc-tag {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+    }
+
+    .fc-content {
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.4;
+      margin: auto 0;
+    }
+
+    .fc-formula {
+      font-family: monospace;
+      background: rgba(0,0,0,0.25);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      color: var(--purple);
+    }
+
+    .fc-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .flashcard-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fc-btn {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fc-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .fc-counter {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Diagnostic Quiz */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .question-block {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: var(--transition);
+    }
+
+    .question-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+
+    .quiz-option:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+    }
+
+    .quiz-option.correct-highlight {
+      border-color: var(--success) !important;
+      background: rgba(63, 185, 80, 0.15) !important;
+    }
+
+    .quiz-option.wrong-highlight {
+      border-color: var(--danger) !important;
+      background: rgba(248, 81, 73, 0.15) !important;
+    }
+
+    .quiz-explanation {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--card-border);
+      display: none;
+    }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .quiz-result-badge {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Study Goal Slider */
+    .goal-slider-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .slider-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .range-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: var(--surface);
+      outline: none;
+      border: 1px solid var(--card-border);
+    }
+
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-glow);
+      transition: var(--transition);
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .schedule-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .metric-box {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .metric-num {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--purple);
+    }
+
+    .metric-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .hydration-banner {
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Notes Scratchpad */
+    .scratchpad-area {
+      width: 100%;
+      height: 120px;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-size: 0.88rem;
+      resize: vertical;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .scratchpad-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .scratchpad-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .status-toast {
+      font-size: 0.78rem;
+      color: var(--success);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Common Buttons */
+    .btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--card-hover);
+      border-color: var(--text-muted);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Main Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <h1>Revision Command Center</h1>
+          <p>Advanced Technical Exam Mastery & Retention System</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+          <span id="themeIcon">☀️</span> <span id="themeText">Light Mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Target Exam Countdown Clock -->
+    <div class="card countdown-banner col-12">
+      <div class="countdown-header">
+        <div>
+          <div class="card-title" style="margin-bottom: 2px;">
+            Target Examination Countdown
+            <span class="badge" id="examStatusBadge">Active Target</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Synchronized mission-clock for competitive engineering entrance</p>
+        </div>
+        <div class="target-picker-group">
+          <label for="targetDateInput">Set Exam Date:</label>
+          <input type="datetime-local" id="targetDateInput" onchange="updateCustomTarget(this.value)">
+        </div>
+      </div>
+      <div class="countdown-grid">
+        <div class="timer-tile">
+          <div class="timer-val" id="daysVal">00</div>
+          <div class="timer-label">Days</div>
+        </div>
+        <div class="timer-tile">
+          <div class="timer-val" id="hoursVal">00</div>
+          <div class="timer-label">Hours</div>
+        </div>
+        <div class="timer-tile">
+          <div class="timer-val" id="minutesVal">00</div>
+          <div class="timer-label">Minutes</div>
+        </div>
+        <div class="timer-tile">
+          <div class="timer-val" id="secondsVal">00</div>
+          <div class="timer-label">Seconds</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Syllabus Checklist & Category Filters -->
+      <div class="card col-7">
+        <div class="card-title">
+          Syllabus Mastery Tracker
+          <span class="badge" id="topicStatsBadge">0 / 8 Mastered</span>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-labels">
+            <span>Overall Syllabus Readiness</span>
+            <span id="progressPercentage">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressBarFill"></div>
+          </div>
+        </div>
+
+        <div class="syllabus-controls">
+          <input type="text" id="syllabusSearch" class="search-input" placeholder="🔍 Quick search topics (e.g. Cache, Consensus, B-Trees)..." oninput="filterTopics()">
+          <div class="filter-pills">
+            <button class="filter-pill active" onclick="setCategoryFilter('All', this)">All Topics</button>
+            <button class="filter-pill" onclick="setCategoryFilter('Hardware/Arch', this)">Hardware/Arch</button>
+            <button class="filter-pill" onclick="setCategoryFilter('Algorithms', this)">Algorithms</button>
+            <button class="filter-pill" onclick="setCategoryFilter('Databases', this)">Databases</button>
+            <button class="filter-pill" onclick="setCategoryFilter('Networks/OS', this)">Networks/OS</button>
+          </div>
+        </div>
+
+        <div class="syllabus-list" id="syllabusList"></div>
+      </div>
+
+      <!-- Right Column: Flashcards & Study Planner -->
+      <div class="col-5" style="display: flex; flex-direction: column; gap: 22px;">
+        
+        <!-- Active Recall Flashcards -->
+        <div class="card">
+          <div class="card-title">
+            Active Recall Flashcards
+            <span class="badge" id="cardCategory">Hardware/Arch</span>
+          </div>
+
+          <div class="flashcard-wrapper" onclick="flipCurrentCard()">
+            <div class="flashcard" id="flashcardElement">
+              <div class="card-face card-front">
+                <div class="fc-tag" id="fcFrontTag">Core Concept</div>
+                <div class="fc-content" id="fcQuestionText">What causes Pipeline Hazards in modern CPU microarchitectures?</div>
+                <div class="fc-hint">💡 Tap or Click anywhere to reveal explanation</div>
+              </div>
+              <div class="card-face card-back">
+                <div class="fc-tag">Architectural Solution</div>
+                <div class="fc-content" id="fcAnswerText">Structural (resource conflict), Data (RAW/WAR/WAW dependencies), and Control (branch mispredictions).</div>
+                <div class="fc-formula" id="fcFormula">Penalty = Branch Penalty × Misprediction Rate</div>
+                <div class="fc-hint">💡 Tap again to flip back</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard-nav">
+            <button class="fc-btn" onclick="prevFlashcard()">← Prev</button>
+            <span class="fc-counter" id="fcCounter">1 / 5</span>
+            <button class="fc-btn" onclick="shuffleFlashcards()">🔀 Shuffle</button>
+            <button class="fc-btn" onclick="nextFlashcard()">Next →</button>
+          </div>
+        </div>
+
+        <!-- Daily Target & Pacing Slider -->
+        <div class="card goal-slider-card">
+          <div class="slider-header">
+            <div>
+              <div class="card-title" style="margin-bottom: 2px;">Daily Study Target</div>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Dynamic intervals & cognitive pacing</p>
+            </div>
+            <div class="slider-val" id="targetHoursDisplay">6.0 hrs</div>
+          </div>
+
+          <input type="range" class="range-slider" id="hoursSlider" min="1" max="12" step="0.5" value="6" oninput="updateStudySchedule(this.value)">
+
+          <div class="schedule-metrics">
+            <div class="metric-box">
+              <div class="metric-num" id="pomodoroCount">10</div>
+              <div class="metric-desc">Pomodoros (25m)</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-num" id="breakTimeCount">50 min</div>
+              <div class="metric-desc">Total Rest Breaks</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-num" id="waterIntake">2.2 L</div>
+              <div class="metric-desc">Hydration Goal</div>
+            </div>
+          </div>
+
+          <div class="hydration-banner" id="hydrationAlert">
+            <span>💧</span>
+            <span id="hydrationMsg">Optimal cognitive load: Schedule a 10-minute walk after every 2 study blocks.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Scored Diagnostic Quiz -->
+      <div class="card col-7">
+        <div class="card-title">
+          Diagnostic Micro-Quiz (High-Yield Concepts)
+          <span class="badge" id="quizStatusBadge">Unscored</span>
+        </div>
+
+        <div class="quiz-container" id="quizContainer"></div>
+
+        <div class="quiz-actions">
+          <div class="quiz-result-badge" id="quizResultBadge"></div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" id="resetQuizBtn" onclick="resetQuiz()">Retake Quiz</button>
+            <button class="btn" id="submitQuizBtn" onclick="scoreQuiz()">Submit & Evaluate</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revision Notes Scratchpad -->
+      <div class="card col-5">
+        <div class="card-title">
+          Engineering Scratchpad & Memory Log
+          <span class="badge">Local Session</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+          Persist high-frequency formulas, algorithmic complexities, and quick derivation hints.
+        </p>
+        <textarea id="scratchpadInput" class="scratchpad-area" placeholder="e.g. Master Theorem: T(n) = aT(n/b) + f(n)... Amdahl's Law Speedup = 1 / ((1-P) + P/S)..."></textarea>
+        <div class="scratchpad-footer">
+          <span class="status-toast" id="saveToast">✓ Saved to Local Memory!</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" onclick="clearScratchpad()">Clear</button>
+            <button class="btn" onclick="saveScratchpad()">Save Note</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Designed & Built by Soubhagyya Bhattacharya • Full-Stack Revision Command Center
+    </footer>
+  </div>
+
+  <script>
+    // Author: Soubhagyya Bhattacharya
+    // Application: Full-Stack Revision Command Center
+
+    // Core syllabus data store
+    const syllabusData = [
+      { id: 1, title: "Pipelining, Superscalar & Branch Prediction", category: "Hardware/Arch", status: "Mastered" },
+      { id: 2, title: "Memory Hierarchy, Cache Coherence & MESI Protocol", category: "Hardware/Arch", status: "Revising" },
+      { id: 3, title: "Distributed Consensus: Raft & Paxos State Machines", category: "Algorithms", status: "Not Started" },
+      { id: 4, title: "Graph Algorithms: Tarjan's SCC & Network Flow (Ford-Fulkerson)", category: "Algorithms", status: "Revising" },
+      { id: 5, title: "B+ Trees, LSM Trees & Write-Ahead Logging (WAL)", category: "Databases", status: "Mastered" },
+      { id: 6, title: "Relational Query Planning & Cost-Based Optimization", category: "Databases", status: "Not Started" },
+      { id: 7, title: "TCP Congestion Control: Reno, Cubic & BBR Dynamic Windows", category: "Networks/OS", status: "Revising" },
+      { id: 8, title: "OS Kernel Scheduling, Virtual Memory & TLB Invalidation", category: "Networks/OS", status: "Mastered" },
+      { id: 9, title: "Public Key Cryptography & Zero-Knowledge Proofs", category: "Algorithms", status: "Not Started" }
+    ];
+
+    // High-yield active recall flashcard bank
+    const flashcardsData = [
+      {
+        category: "Hardware/Arch",
+        tag: "Processor Architecture",
+        question: "What is Amdahl's Law and how does it bound multicore performance?",
+        answer: "Amdahl's law specifies the theoretical maximum speedup of a program when using multiple processors, constrained strictly by the serial fraction.",
+        formula: "Speedup = 1 / ((1 - P) + (P / S))"
+      },
+      {
+        category: "Databases",
+        tag: "Storage Engines",
+        question: "Why do LSM Trees offer higher write throughput than B+ Trees?",
+        answer: "LSM trees convert random writes into sequential in-memory writes (MemTable) flushed append-only to SSTables, avoiding expensive in-place disk page updates.",
+        formula: "Write Amplification: LSM O(log_T N) vs In-Place O(pages)"
+      },
+      {
+        category: "Algorithms",
+        tag: "Distributed Systems",
+        question: "Explain the CAP Theorem trade-off in network-partitioned systems.",
+        answer: "Under network partition (P), a distributed data store must choose between Consistency (returning errors or waiting) or Availability (returning stale data).",
+        formula: "Safety (Consistency) vs Liveness (Availability)"
+      },
+      {
+        category: "Networks/OS",
+        tag: "Virtual Memory",
+        question: "What is the purpose of the Translation Lookaside Buffer (TLB)?",
+        answer: "The TLB acts as a hardware cache for recent virtual-to-physical address translations, eliminating memory lookups in the multi-level page table.",
+        formula: "Effective Access Time = HitRate × HitTime + MissRate × MissPenalty"
+      },
+      {
+        category: "Algorithms",
+        tag: "Complexity Theory",
+        question: "What criteria must be satisfied for a problem to be NP-Complete?",
+        answer: "The decision problem must belong to class NP (verifiable in polynomial time) and every problem in NP must be polynomial-time reducible to it (NP-Hard).",
+        formula: "L ∈ NP  and  ∀ L' ∈ NP, L' ≤p L"
+      }
+    ];
+
+    // Diagnostic quiz questions
+    const quizData = [
+      {
+        id: 1,
+        question: "1. In CPU cache architectures, which coherency protocol state allows immediate write without broadcasting to the bus?",
+        options: [
+          "Shared (S)",
+          "Modified (M)",
+          "Invalid (I)",
+          "Read-Only (RO)"
+        ],
+        correct: 1,
+        explanation: "In the MESI protocol, a cache line in Modified (M) state is exclusively dirty and can be written immediately without bus invalidation."
+      },
+      {
+        id: 2,
+        question: "2. In a Write-Ahead Log (WAL) database storage engine, when is a transaction considered safely committed?",
+        options: [
+          "When all modified data tables are updated in disk data pages",
+          "When the transaction log record is synchronously flushed to persistent disk",
+          "When client socket sends ACK packet",
+          "When garbage collection frees old row versions"
+        ],
+        correct: 1,
+        explanation: "Under the ARIES recovery paradigm, durability is guaranteed as soon as the corresponding log sequence record is flushed to persistent storage."
+      },
+      {
+        id: 3,
+        question: "3. What is the average time complexity of searching an element in a balanced B+ tree containing N keys with branching factor B?",
+        options: [
+          "O(N log B)",
+          "O(log_B N)",
+          "O(B log N)",
+          "O(N / B)"
+        ],
+        correct: 1,
+        explanation: "The height of a B+ tree with branching factor B is log_B(N), yielding an asymptotic search time of O(log_B N)."
+      },
+      {
+        id: 4,
+        question: "4. Raft consensus achieves leader election safety by requiring candidates to have:",
+        options: [
+          "The fastest network round-trip ping time",
+          "A log that contains all committed entries from prior terms",
+          "A zero memory usage footprint",
+          "Pre-assigned asymmetric private key certificates"
+        ],
+        correct: 1,
+        explanation: "Raft's election restriction guarantees that an elected leader contains all committed log entries up to that term, avoiding overwrite."
+      }
+    ];
+
+    // Countdown target initialization
+    let examTargetTime = new Date();
+    examTargetTime.setDate(examTargetTime.getDate() + 45);
+    examTargetTime.setHours(9, 0, 0, 0);
+
+    function initCountdown() {
+      const targetInput = document.getElementById("targetDateInput");
+      const tzOffset = examTargetTime.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(examTargetTime.getTime() - tzOffset)).toISOString().slice(0, 16);
+      targetInput.value = localISOTime;
+
+      setInterval(tickCountdown, 1000);
+      tickCountdown();
+    }
+
+    function updateCustomTarget(val) {
+      if (!val) return;
+      examTargetTime = new Date(val);
+      tickCountdown();
+    }
+
+    function tickCountdown() {
+      const now = new Date().getTime();
+      const diff = examTargetTime.getTime() - now;
+      const badge = document.getElementById("examStatusBadge");
+
+      if (diff <= 0) {
+        document.getElementById("daysVal").textContent = "00";
+        document.getElementById("hoursVal").textContent = "00";
+        document.getElementById("minutesVal").textContent = "00";
+        document.getElementById("secondsVal").textContent = "00";
+        badge.textContent = "Exam In Session / Passed";
+        badge.style.color = "var(--danger)";
+        badge.style.borderColor = "var(--danger)";
+        return;
+      }
+
+      badge.textContent = "Active Target";
+      badge.style.color = "var(--accent)";
+      badge.style.borderColor = "var(--accent)";
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById("daysVal").textContent = String(days).padStart(2, '0');
+      document.getElementById("hoursVal").textContent = String(hours).padStart(2, '0');
+      document.getElementById("minutesVal").textContent = String(minutes).padStart(2, '0');
+      document.getElementById("secondsVal").textContent = String(seconds).padStart(2, '0');
+    }
+
+    // Syllabus list rendering & dynamic progress
+    let activeCategory = "All";
+
+    function renderSyllabus() {
+      const listEl = document.getElementById("syllabusList");
+      const query = document.getElementById("syllabusSearch").value.toLowerCase();
+      listEl.innerHTML = "";
+
+      let masteredCount = 0;
+      let totalCount = syllabusData.length;
+      let weightedProgress = 0;
+
+      syllabusData.forEach(topic => {
+        if (topic.status === "Mastered") {
+          masteredCount++;
+          weightedProgress += 1;
+        } else if (topic.status === "Revising") {
+          weightedProgress += 0.5;
+        }
+
+        const matchCat = (activeCategory === "All" || topic.category === activeCategory);
+        const matchQuery = topic.title.toLowerCase().includes(query) || topic.category.toLowerCase().includes(query);
+
+        if (matchCat && matchQuery) {
+          const item = document.createElement("div");
+          item.className = "syllabus-item";
+          item.innerHTML = `
+            <div class="item-meta">
+              <span class="item-cat">${topic.category}</span>
+              <span>${topic.title}</span>
+            </div>
+            <select class="status-select" data-val="${topic.status}" onchange="updateTopicStatus(${topic.id}, this.value)">
+              <option value="Not Started" ${topic.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+              <option value="Revising" ${topic.status === 'Revising' ? 'selected' : ''}>Revising</option>
+              <option value="Mastered" ${topic.status === 'Mastered' ? 'selected' : ''}>Mastered</option>
+            </select>
+          `;
+          listEl.appendChild(item);
+        }
+      });
+
+      const percentage = Math.round((weightedProgress / totalCount) * 100);
+      document.getElementById("progressBarFill").style.width = percentage + "%";
+      document.getElementById("progressPercentage").textContent = percentage + "% Complete";
+      document.getElementById("topicStatsBadge").textContent = `${masteredCount} / ${totalCount} Mastered`;
+    }
+
+    function updateTopicStatus(id, newStatus) {
+      const topic = syllabusData.find(t => t.id === id);
+      if (topic) {
+        topic.status = newStatus;
+        renderSyllabus();
+      }
+    }
+
+    function setCategoryFilter(category, buttonEl) {
+      activeCategory = category;
+      document.querySelectorAll(".filter-pill").forEach(btn => btn.classList.remove("active"));
+      buttonEl.classList.add("active");
+      renderSyllabus();
+    }
+
+    function filterTopics() {
+      renderSyllabus();
+    }
+
+    // Flashcard state and 3D rotation
+    let currentCardIndex = 0;
+    let isFlipped = false;
+
+    function displayFlashcard() {
+      const card = flashcardsData[currentCardIndex];
+      const cardEl = document.getElementById("flashcardElement");
+      
+      cardEl.classList.remove("flipped");
+      isFlipped = false;
+
+      document.getElementById("cardCategory").textContent = card.category;
+      document.getElementById("fcFrontTag").textContent = card.tag;
+      document.getElementById("fcQuestionText").textContent = card.question;
+      document.getElementById("fcAnswerText").textContent = card.answer;
+      document.getElementById("fcFormula").textContent = card.formula;
+      document.getElementById("fcCounter").textContent = `${currentCardIndex + 1} / ${flashcardsData.length}`;
+    }
+
+    function flipCurrentCard() {
+      const cardEl = document.getElementById("flashcardElement");
+      isFlipped = !isFlipped;
+      cardEl.classList.toggle("flipped", isFlipped);
+    }
+
+    function nextFlashcard() {
+      currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+      displayFlashcard();
+    }
+
+    function prevFlashcard() {
+      currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+      displayFlashcard();
+    }
+
+    function shuffleFlashcards() {
+      for (let i = flashcardsData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [flashcardsData[i], flashcardsData[j]] = [flashcardsData[j], flashcardsData[i]];
+      }
+      currentCardIndex = 0;
+      displayFlashcard();
+    }
+
+    // Daily study schedule calculation
+    function updateStudySchedule(hours) {
+      document.getElementById("targetHoursDisplay").textContent = parseFloat(hours).toFixed(1) + " hrs";
+      
+      const pomodoros = Math.round((hours * 60) / 30);
+      const breakMins = Math.round(pomodoros * 5);
+      const waterLiters = (hours * 0.35 + 0.5).toFixed(1);
+
+      document.getElementById("pomodoroCount").textContent = pomodoros;
+      document.getElementById("breakTimeCount").textContent = breakMins + " min";
+      document.getElementById("waterIntake").textContent = waterLiters + " L";
+
+      const alertEl = document.getElementById("hydrationMsg");
+      if (hours <= 4) {
+        alertEl.textContent = "Sprint session: High retention rate! Ensure at least 15 min review at end.";
+      } else if (hours <= 8) {
+        alertEl.textContent = "Optimal cognitive load: Schedule a 10-minute walk after every 2 study blocks.";
+      } else {
+        alertEl.textContent = "High-intensity pacing: Mandatory 30-minute lunch pause and eye strain breaks required.";
+      }
+    }
+
+    // Diagnostic quiz scoring
+    function renderQuiz() {
+      const container = document.getElementById("quizContainer");
+      container.innerHTML = "";
+
+      quizData.forEach((q) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "question-block";
+        qBlock.id = `qBlock_${q.id}`;
+
+        let optsHtml = "";
+        q.options.forEach((opt, optIdx) => {
+          optsHtml += `
+            <label class="quiz-option" id="qOpt_${q.id}_${optIdx}">
+              <input type="radio" name="quiz_q_${q.id}" value="${optIdx}">
+              <span>${opt}</span>
+            </label>
+          `;
+        });
+
+        qBlock.innerHTML = `
+          <div class="question-title">${q.question}</div>
+          <div class="options-list">${optsHtml}</div>
+          <div class="quiz-explanation" id="qExp_${q.id}">${q.explanation}</div>
+        `;
+        container.appendChild(qBlock);
+      });
+    }
+
+    function scoreQuiz() {
+      let score = 0;
+      let total = quizData.length;
+
+      quizData.forEach(q => {
+        const selected = document.querySelector(`input[name="quiz_q_${q.id}"]:checked`);
+        const explanationEl = document.getElementById(`qExp_${q.id}`);
+        explanationEl.style.display = "block";
+
+        q.options.forEach((_, optIdx) => {
+          const optLabel = document.getElementById(`qOpt_${q.id}_${optIdx}`);
+          optLabel.classList.remove("correct-highlight", "wrong-highlight");
+        });
+
+        const correctLabel = document.getElementById(`qOpt_${q.id}_${q.correct}`);
+        correctLabel.classList.add("correct-highlight");
+
+        if (selected) {
+          const val = parseInt(selected.value);
+          if (val === q.correct) {
+            score++;
+          } else {
+            const wrongLabel = document.getElementById(`qOpt_${q.id}_${val}`);
+            wrongLabel.classList.add("wrong-highlight");
+          }
+        }
+      });
+
+      const badge = document.getElementById("quizStatusBadge");
+      const resultBadge = document.getElementById("quizResultBadge");
+      const percent = Math.round((score / total) * 100);
+
+      let emoji = "🎯";
+      if (percent === 100) emoji = "🏆 Stellar! Perfect Score";
+      else if (percent >= 75) emoji = "⚡ Solid Readiness!";
+      else if (percent >= 50) emoji = "📖 Revision Advised";
+      else emoji = "⚠️ Needs Deep Review";
+
+      badge.textContent = `Score: ${score} / ${total} (${percent}%)`;
+      badge.style.color = percent >= 75 ? "var(--success)" : "var(--warning)";
+      badge.style.borderColor = badge.style.color;
+
+      resultBadge.style.display = "inline-flex";
+      resultBadge.textContent = `${emoji} - ${score}/${total} Correct (${percent}%)`;
+      resultBadge.style.color = percent >= 75 ? "var(--success)" : "var(--accent)";
+    }
+
+    function resetQuiz() {
+      quizData.forEach(q => {
+        const selected = document.querySelector(`input[name="quiz_q_${q.id}"]:checked`);
+        if (selected) selected.checked = false;
+        
+        q.options.forEach((_, optIdx) => {
+          const optLabel = document.getElementById(`qOpt_${q.id}_${optIdx}`);
+          if (optLabel) optLabel.classList.remove("correct-highlight", "wrong-highlight");
+        });
+
+        const explanationEl = document.getElementById(`qExp_${q.id}`);
+        if (explanationEl) explanationEl.style.display = "none";
+      });
+
+      const badge = document.getElementById("quizStatusBadge");
+      badge.textContent = "Unscored";
+      badge.style.color = "var(--accent)";
+      badge.style.borderColor = "var(--accent)";
+
+      const resultBadge = document.getElementById("quizResultBadge");
+      resultBadge.style.display = "none";
+    }
+
+    // Scratchpad persistent store
+    const STORAGE_KEY = "sb_revision_notes";
+
+    function loadScratchpad() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        document.getElementById("scratchpadInput").value = saved;
+      }
+    }
+
+    function saveScratchpad() {
+      const val = document.getElementById("scratchpadInput").value;
+      localStorage.setItem(STORAGE_KEY, val);
+      const toast = document.getElementById("saveToast");
+      toast.style.opacity = "1";
+      setTimeout(() => { toast.style.opacity = "0"; }, 2500);
+    }
+
+    function clearScratchpad() {
+      if (confirm("Clear local scratchpad notes?")) {
+        document.getElementById("scratchpadInput").value = "";
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    // Theme toggle
+    let currentTheme = "dark";
+
+    function toggleTheme() {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      if (currentTheme === "light") {
+        document.body.setAttribute("data-theme", "light");
+        document.getElementById("themeIcon").textContent = "🌙";
+        document.getElementById("themeText").textContent = "Dark Mode";
+      } else {
+        document.body.removeAttribute("data-theme");
+        document.getElementById("themeIcon").textContent = "☀️";
+        document.getElementById("themeText").textContent = "Light Mode";
+      }
+    }
+
+    // Initialization
+    window.addEventListener("DOMContentLoaded", () => {
+      initCountdown();
+      renderSyllabus();
+      displayFlashcard();
+      renderQuiz();
+      loadScratchpad();
+      updateStudySchedule(6);
+    });
+  </script>
+</body>
+</html>

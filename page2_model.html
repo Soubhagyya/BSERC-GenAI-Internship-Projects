@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Soubhagyya Bhattacharya">
+  <meta name="description" content="Interactive Orbital Mechanics and Satellite Telemetry Simulation Studio">
+  <title>Orbital Mechanics & Satellite Simulation Studio</title>
+  <style>
+    :root {
+      --bg: #060913;
+      --panel-bg: rgba(13, 20, 36, 0.82);
+      --panel-border: rgba(56, 139, 253, 0.25);
+      --accent-cyan: #00f0ff;
+      --accent-blue: #388bfd;
+      --accent-purple: #a371f7;
+      --accent-green: #3fb950;
+      --accent-orange: #f0883e;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --radar-bg: #04140b;
+      --radar-accent: #00ff66;
+      --wireframe-bg: #121212;
+      --wireframe-accent: #e0e0e0;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "SF Pro Display", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: radial-gradient(circle, var(--accent-cyan), #0c2d48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+    }
+
+    .brand-title h1 {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .header-pills {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      background: rgba(63, 185, 80, 0.15);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      flex: 1;
+      min-height: calc(100vh - 105px);
+      position: relative;
+    }
+
+    @media (max-width: 1024px) {
+      .sim-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-viewport {
+      position: relative;
+      background: #03050a;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#orbitCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .canvas-overlay-stats {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      background: rgba(6, 10, 20, 0.75);
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(6px);
+    }
+
+    .canvas-controls-floating {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(13, 20, 36, 0.88);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(10px);
+      padding: 8px 18px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      z-index: 5;
+    }
+
+    .floating-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .floating-btn:hover {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+    }
+
+    .control-station {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border-left: 1px solid var(--panel-border);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      max-height: calc(100vh - 105px);
+    }
+
+    .control-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-header {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-title {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .slider-value {
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-family: monospace;
+    }
+
+    .orbit-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.12);
+      outline: none;
+    }
+
+    .orbit-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-cyan);
+      transition: transform 0.15s;
+    }
+
+    .orbit-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .sat-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .sat-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 8px 4px;
+      border-radius: 8px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sat-btn:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .sat-btn.active {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+    }
+
+    .telemetry-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(56, 139, 253, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .telemetry-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tele-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .tele-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: #fff;
+    }
+
+    .visualizer-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-label input[type="checkbox"] {
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+      width: 15px;
+      height: 15px;
+    }
+
+    .theme-select {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      outline: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .theme-select option {
+      background: #0d1424;
+      color: #fff;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #1f6feb, #00f0ff);
+      color: #030814;
+      font-weight: 700;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .action-btn:hover {
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .action-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .action-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    footer {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
+      text-align: center;
+      padding: 12px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title">
+      <div class="brand-icon">🛰️</div>
+      <div>
+        <h1>Orbital Mechanics & Satellite Simulation Studio</h1>
+        <p>Interactive Keplerian Astrodynamics & Telemetry Explorer</p>
+      </div>
+    </div>
+    <div class="header-pills">
+      <div class="status-indicator">
+        <span class="pulse-dot"></span>
+        <span id="physicsStatus">Physics Engine: 60 FPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="sim-container">
+    
+    <!-- Physics Simulation Canvas -->
+    <div class="canvas-viewport" id="canvasContainer">
+      <canvas id="orbitCanvas"></canvas>
+
+      <div class="canvas-overlay-stats">
+        <div><strong>CENTRAL BODY:</strong> Earth (M = 5.972 × 10²⁴ kg)</div>
+        <div><strong>GRAVITATIONAL PARAMETER (μ):</strong> 398,600 km³/s²</div>
+        <div id="canvasActiveSatDisplay">TRACKING: Satellite Alpha (LEO)</div>
+      </div>
+
+      <div class="canvas-controls-floating">
+        <button class="floating-btn" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
+        <button class="floating-btn" onclick="zoomIn()">🔍+ Zoom In</button>
+        <button class="floating-btn" onclick="zoomOut()">🔍- Zoom Out</button>
+        <button class="floating-btn" onclick="resetView()">🎯 Center</button>
+      </div>
+    </div>
+
+    <!-- Telemetry & Simulation Controls -->
+    <aside class="control-station">
+      
+      <!-- Satellite Telemetry Panel -->
+      <div class="control-section">
+        <div class="section-header">
+          <span>Active Target Telemetry</span>
+          <span style="font-size: 0.7rem; color: var(--text-muted);">Inspection Card</span>
+        </div>
+
+        <div class="sat-selector-grid">
+          <button class="sat-btn active" id="btnSat0" onclick="selectSatellite(0)">Alpha<br><small>LEO (400 km)</small></button>
+          <button class="sat-btn" id="btnSat1" onclick="selectSatellite(1)">Beta<br><small>MEO (20,200 km)</small></button>
+          <button class="sat-btn" id="btnSat2" onclick="selectSatellite(2)">GeoComm<br><small>GEO (35,786 km)</small></button>
+        </div>
+
+        <div class="telemetry-card">
+          <div class="telemetry-item">
+            <span class="tele-label">Altitude</span>
+            <span class="tele-val" id="teleAltitude">412 km</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="tele-label">Orbital Velocity</span>
+            <span class="tele-val" id="teleSpeed">7.67 km/s</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="tele-label">Orbital Period</span>
+            <span class="tele-val" id="telePeriod">92.8 min</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="tele-label">Eccentricity (e)</span>
+            <span class="tele-val" id="teleEcc">0.001</span>
+          </div>
+          <div class="telemetry-item" style="grid-column: span 2;">
+            <span class="tele-label">True Anomaly (θ) / Coordinates</span>
+            <span class="tele-val" id="teleCoords">θ: 142.4° [X: 4210, Y: 5312]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orbital Dynamics Adjustment -->
+      <div class="control-section">
+        <div class="section-header">Dynamic Physical Parameters</div>
+
+        <!-- Warp Speed -->
+        <div class="slider-group">
+          <div class="slider-title">
+            <span>Simulation Time Warp:</span>
+            <span class="slider-value" id="speedDisplay">1.0x</span>
+          </div>
+          <input type="range" class="orbit-slider" id="speedSlider" min="0" max="5" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
+        </div>
+
+        <!-- Semi-Major Axis Radius Modifier -->
+        <div class="slider-group">
+          <div class="slider-title">
+            <span>Selected Orbit Radius Scale:</span>
+            <span class="slider-value" id="radiusScaleDisplay">1.00x</span>
+          </div>
+          <input type="range" class="orbit-slider" id="radiusSlider" min="0.5" max="2.0" step="0.05" value="1.00" oninput="updateRadiusScale(this.value)">
+        </div>
+
+        <!-- Eccentricity Modifier -->
+        <div class="slider-group">
+          <div class="slider-title">
+            <span>Orbital Eccentricity (e):</span>
+            <span class="slider-value" id="eccDisplay">0.00</span>
+          </div>
+          <input type="range" class="orbit-slider" id="eccSlider" min="0" max="0.65" step="0.01" value="0.00" oninput="updateEccentricity(this.value)">
+        </div>
+      </div>
+
+      <!-- Visual Filters -->
+      <div class="control-section">
+        <div class="section-header">Visualizer Overlays</div>
+        <div class="visualizer-options">
+          <label class="toggle-label">
+            <input type="checkbox" id="chkTrails" checked onchange="toggleOverlay('trails')">
+            <span>Orbital Trails</span>
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="chkFootprint" checked onchange="toggleOverlay('footprint')">
+            <span>Signal Footprint</span>
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="chkVelocity" checked onchange="toggleOverlay('velocity')">
+            <span>Velocity Vectors</span>
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="chkGrid" checked onchange="toggleOverlay('grid')">
+            <span>Celestial Grid</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Canvas Theme -->
+      <div class="control-section">
+        <div class="section-header">Celestial Rendering Theme</div>
+        <select class="theme-select" id="themeSelector" onchange="changeTheme(this.value)">
+          <option value="neon">Deep Space Neon (Default)</option>
+          <option value="radar">Tactical Radar Thermal</option>
+          <option value="wireframe">Minimal Blueprint Wireframe</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; margin-top: auto;">
+        <button class="action-btn action-btn-secondary" style="flex: 1;" onclick="resetSimulation()">🔄 Factory Reset</button>
+        <button class="action-btn" style="flex: 1;" onclick="randomizeMission()">⚡ Inject Anomaly</button>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <footer>
+    Interactive Orbital Mechanics Simulation • Developed by Soubhagyya Bhattacharya
+  </footer>
+
+  <script>
+    // Author: Soubhagyya Bhattacharya
+    // Project: Interactive Keplerian Astrodynamics & Satellite Simulation
+
+    const canvas = document.getElementById("orbitCanvas");
+    const ctx = canvas.getContext("2d");
+    const container = document.getElementById("canvasContainer");
+
+    let isPlaying = true;
+    let simSpeedMultiplier = 1.0;
+    let zoomLevel = 1.0;
+    let panOffset = { x: 0, y: 0 };
+    let activeSatIndex = 0;
+    let currentTheme = "neon";
+
+    const overlays = {
+      trails: true,
+      footprint: true,
+      velocity: true,
+      grid: true
+    };
+
+    const EARTH_RADIUS_PX = 46;
+    const EARTH_PHYSICAL_KM = 6378;
+
+    const satellites = [
+      {
+        name: "Satellite Alpha (LEO)",
+        class: "Low Earth Orbit (LEO)",
+        baseSemiMajor: 100,
+        baseAltitudeKm: 420,
+        realPeriodMin: 92.8,
+        color: "#00f0ff",
+        size: 5,
+        angle: 0.2,
+        speedFactor: 1.4,
+        eccentricity: 0.02,
+        trail: [],
+        radiusMultiplier: 1.0
+      },
+      {
+        name: "Orbiter Beta (MEO)",
+        class: "Medium Earth Orbit (GPS/Galileo)",
+        baseSemiMajor: 185,
+        baseAltitudeKm: 20200,
+        realPeriodMin: 718.0,
+        color: "#a371f7",
+        size: 6,
+        angle: 1.8,
+        speedFactor: 0.58,
+        eccentricity: 0.05,
+        trail: [],
+        radiusMultiplier: 1.0
+      },
+      {
+        name: "GeoComm (GEO)",
+        class: "Geostationary Telecommunications",
+        baseSemiMajor: 275,
+        baseAltitudeKm: 35786,
+        realPeriodMin: 1436.0,
+        color: "#3fb950",
+        size: 7,
+        angle: 3.6,
+        speedFactor: 0.25,
+        eccentricity: 0.01,
+        trail: [],
+        radiusMultiplier: 1.0
+      }
+    ];
+
+    // High DPI dynamic canvas sizing
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    const themes = {
+      neon: {
+        bg: "#030611",
+        grid: "rgba(56, 139, 253, 0.08)",
+        earthGrad1: "#104f94",
+        earthGrad2: "#072348",
+        earthAtmosphere: "rgba(0, 240, 255, 0.25)",
+        text: "#f0f6fc"
+      },
+      radar: {
+        bg: "#021208",
+        grid: "rgba(0, 255, 102, 0.12)",
+        earthGrad1: "#005a24",
+        earthGrad2: "#012b11",
+        earthAtmosphere: "rgba(0, 255, 102, 0.3)",
+        text: "#00ff66"
+      },
+      wireframe: {
+        bg: "#0d0f12",
+        grid: "rgba(255, 255, 255, 0.06)",
+        earthGrad1: "#22272e",
+        earthGrad2: "#161b22",
+        earthAtmosphere: "rgba(255, 255, 255, 0.15)",
+        text: "#c9d1d9"
+      }
+    };
+
+    function changeTheme(themeKey) {
+      currentTheme = themeKey;
+    }
+
+    function togglePlayPause() {
+      isPlaying = !isPlaying;
+      document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸ Pause" : "▶ Resume";
+      document.getElementById("physicsStatus").textContent = isPlaying ? "Physics Engine: 60 FPS" : "Physics Engine: PAUSED";
+    }
+
+    function updateSpeed(val) {
+      simSpeedMultiplier = parseFloat(val);
+      document.getElementById("speedDisplay").textContent = simSpeedMultiplier.toFixed(1) + "x";
+    }
+
+    function updateRadiusScale(val) {
+      const scale = parseFloat(val);
+      satellites[activeSatIndex].radiusMultiplier = scale;
+      document.getElementById("radiusScaleDisplay").textContent = scale.toFixed(2) + "x";
+      updateTelemetryUI();
+    }
+
+    function updateEccentricity(val) {
+      const ecc = parseFloat(val);
+      satellites[activeSatIndex].eccentricity = ecc;
+      document.getElementById("eccDisplay").textContent = ecc.toFixed(2);
+      updateTelemetryUI();
+    }
+
+    function toggleOverlay(key) {
+      overlays[key] = document.getElementById("chk" + key.charAt(0).toUpperCase() + key.slice(1)).checked;
+    }
+
+    function selectSatellite(index) {
+      activeSatIndex = index;
+      document.querySelectorAll(".sat-btn").forEach((btn, idx) => {
+        btn.classList.toggle("active", idx === index);
+      });
+
+      const sat = satellites[index];
+      document.getElementById("radiusSlider").value = sat.radiusMultiplier;
+      document.getElementById("radiusScaleDisplay").textContent = sat.radiusMultiplier.toFixed(2) + "x";
+
+      document.getElementById("eccSlider").value = sat.eccentricity;
+      document.getElementById("eccDisplay").textContent = sat.eccentricity.toFixed(2);
+
+      document.getElementById("canvasActiveSatDisplay").textContent = "TRACKING: " + sat.name;
+      updateTelemetryUI();
+    }
+
+    function zoomIn() {
+      zoomLevel = Math.min(2.5, zoomLevel + 0.2);
+    }
+
+    function zoomOut() {
+      zoomLevel = Math.max(0.4, zoomLevel - 0.2);
+    }
+
+    function resetView() {
+      zoomLevel = 1.0;
+      panOffset = { x: 0, y: 0 };
+    }
+
+    function resetSimulation() {
+      simSpeedMultiplier = 1.0;
+      document.getElementById("speedSlider").value = 1.0;
+      document.getElementById("speedDisplay").textContent = "1.0x";
+
+      satellites.forEach((sat, i) => {
+        sat.radiusMultiplier = 1.0;
+        sat.eccentricity = i === 0 ? 0.02 : (i === 1 ? 0.05 : 0.01);
+        sat.angle = i * 1.5;
+        sat.trail = [];
+      });
+
+      selectSatellite(0);
+      resetView();
+    }
+
+    function randomizeMission() {
+      const sat = satellites[activeSatIndex];
+      sat.eccentricity = Math.min(0.55, sat.eccentricity + 0.15);
+      sat.radiusMultiplier = Math.min(1.8, sat.radiusMultiplier + 0.25);
+      document.getElementById("eccSlider").value = sat.eccentricity;
+      document.getElementById("eccDisplay").textContent = sat.eccentricity.toFixed(2);
+      document.getElementById("radiusSlider").value = sat.radiusMultiplier;
+      document.getElementById("radiusScaleDisplay").textContent = sat.radiusMultiplier.toFixed(2) + "x";
+      updateTelemetryUI();
+    }
+
+    // Telemetry calculation via Keplerian laws
+    function updateTelemetryUI() {
+      const sat = satellites[activeSatIndex];
+      const a_scaled = sat.baseSemiMajor * sat.radiusMultiplier;
+      const e = sat.eccentricity;
+
+      const r_current = (a_scaled * (1 - e * e)) / (1 + e * Math.cos(sat.angle));
+      const physicalAltitude = Math.round(sat.baseAltitudeKm * sat.radiusMultiplier);
+      const orbitalPeriod = (sat.realPeriodMin * Math.pow(sat.radiusMultiplier, 1.5)).toFixed(1);
+      
+      const baseVelocity = activeSatIndex === 0 ? 7.67 : (activeSatIndex === 1 ? 3.88 : 3.07);
+      const currentSpeed = (baseVelocity / Math.sqrt(sat.radiusMultiplier) * (1 + e * Math.cos(sat.angle) * 0.1)).toFixed(2);
+      const trueAnomalyDeg = Math.round(((sat.angle % (Math.PI * 2)) * 180 / Math.PI + 360) % 360);
+
+      document.getElementById("teleAltitude").textContent = physicalAltitude.toLocaleString() + " km";
+      document.getElementById("teleSpeed").textContent = currentSpeed + " km/s";
+      document.getElementById("telePeriod").textContent = orbitalPeriod > 120 ? (orbitalPeriod / 60).toFixed(1) + " hrs" : orbitalPeriod + " min";
+      document.getElementById("teleEcc").textContent = e.toFixed(3);
+      document.getElementById("teleCoords").textContent = `θ: ${trueAnomalyDeg}° [R: ${Math.round(r_current)}px]`;
+    }
+
+    // 60-FPS animation loop
+    let earthSpinAngle = 0;
+
+    function renderLoop() {
+      const rect = container.getBoundingClientRect();
+      const theme = themes[currentTheme];
+
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.fillStyle = theme.bg;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      const centerX = rect.width / 2 + panOffset.x;
+      const centerY = rect.height / 2 + panOffset.y;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.scale(zoomLevel, zoomLevel);
+
+      // Coordinate Grid
+      if (overlays.grid) {
+        ctx.strokeStyle = theme.grid;
+        ctx.lineWidth = 1;
+        for (let r = 70; r <= 420; r += 70) {
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(-500, 0); ctx.lineTo(500, 0);
+        ctx.moveTo(0, -500); ctx.lineTo(0, 500);
+        ctx.stroke();
+      }
+
+      // Earth body & atmosphere
+      const earthRad = EARTH_RADIUS_PX;
+
+      const atmoGlow = ctx.createRadialGradient(0, 0, earthRad, 0, 0, earthRad + 24);
+      atmoGlow.addColorStop(0, theme.earthAtmosphere);
+      atmoGlow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = atmoGlow;
+      ctx.beginPath();
+      ctx.arc(0, 0, earthRad + 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      const earthGrad = ctx.createRadialGradient(-earthRad * 0.3, -earthRad * 0.3, 5, 0, 0, earthRad);
+      earthGrad.addColorStop(0, theme.earthGrad1);
+      earthGrad.addColorStop(1, theme.earthGrad2);
+      ctx.fillStyle = earthGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, earthRad, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.rotate(earthSpinAngle);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.ellipse(0, 0, earthRad * (0.25 * (i + 1)), earthRad, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Render satellites & Keplerian ellipses
+      satellites.forEach((sat, idx) => {
+        const a = sat.baseSemiMajor * sat.radiusMultiplier;
+        const e = sat.eccentricity;
+        const b = a * Math.sqrt(Math.max(0.01, 1 - e * e));
+        const c = a * e;
+
+        ctx.save();
+        ctx.strokeStyle = idx === activeSatIndex ? sat.color : "rgba(255, 255, 255, 0.2)";
+        ctx.lineWidth = idx === activeSatIndex ? 2 : 1;
+        ctx.setLineDash(idx === activeSatIndex ? [] : [4, 6]);
+        ctx.beginPath();
+        ctx.ellipse(-c, 0, a, b, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        const r = (a * (1 - e * e)) / (1 + e * Math.cos(sat.angle));
+        const satX = r * Math.cos(sat.angle);
+        const satY = r * Math.sin(sat.angle);
+
+        if (isPlaying && overlays.trails) {
+          sat.trail.push({ x: satX, y: satY });
+          if (sat.trail.length > 50) sat.trail.shift();
+        }
+
+        if (overlays.trails && sat.trail.length > 1) {
+          for (let t = 1; t < sat.trail.length; t++) {
+            const alpha = (t / sat.trail.length) * 0.7;
+            ctx.strokeStyle = sat.color;
+            ctx.globalAlpha = alpha;
+            ctx.lineWidth = idx === activeSatIndex ? 3 : 1.5;
+            ctx.beginPath();
+            ctx.moveTo(sat.trail[t - 1].x, sat.trail[t - 1].y);
+            ctx.lineTo(sat.trail[t].x, sat.trail[t].y);
+            ctx.stroke();
+          }
+          ctx.globalAlpha = 1.0;
+        }
+
+        if (overlays.footprint) {
+          const footprintGrad = ctx.createRadialGradient(satX, satY, 2, 0, 0, earthRad);
+          footprintGrad.addColorStop(0, sat.color + "55");
+          footprintGrad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = footprintGrad;
+          ctx.beginPath();
+          ctx.moveTo(satX, satY);
+          const distToCenter = Math.sqrt(satX * satX + satY * satY);
+          if (distToCenter > earthRad) {
+            const angleToSat = Math.atan2(satY, satX);
+            const halfAngle = Math.acos(earthRad / distToCenter);
+            ctx.arc(0, 0, earthRad, angleToSat - halfAngle, angleToSat + halfAngle);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+
+        if (overlays.velocity) {
+          const tangentAngle = sat.angle + Math.PI / 2 + (e * Math.sin(sat.angle) * 0.5);
+          const vLength = 28;
+          const vEndX = satX + Math.cos(tangentAngle) * vLength;
+          const vEndY = satY + Math.sin(tangentAngle) * vLength;
+
+          ctx.strokeStyle = "#ffdd57";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(satX, satY);
+          ctx.lineTo(vEndX, vEndY);
+          ctx.stroke();
+
+          ctx.fillStyle = "#ffdd57";
+          ctx.beginPath();
+          ctx.arc(vEndX, vEndY, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = sat.color;
+        ctx.shadowColor = sat.color;
+        ctx.shadowBlur = idx === activeSatIndex ? 14 : 6;
+        ctx.beginPath();
+        ctx.arc(satX, satY, sat.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = theme.text;
+        ctx.font = "10px -apple-system, sans-serif";
+        ctx.fillText(sat.name.split(" ")[0], satX + 8, satY - 6);
+
+        if (isPlaying) {
+          const angularVelocity = (sat.speedFactor * 0.02 * simSpeedMultiplier) * Math.pow(a / r, 2);
+          sat.angle += angularVelocity;
+        }
+      });
+
+      ctx.restore();
+
+      if (isPlaying) {
+        earthSpinAngle += 0.002 * simSpeedMultiplier;
+        updateTelemetryUI();
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      resizeCanvas();
+      selectSatellite(0);
+      requestAnimationFrame(renderLoop);
+    });
+  </script>
+</body>
+</html>

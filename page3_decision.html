@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Soubhagyya Bhattacharya">
+  <meta name="description" content="Multi-Criteria Architecture Trade-Off Decision Matrix & Evaluator">
+  <title>Architecture Trade-Off Decision Matrix</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 25, 41, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --surface: #1e293b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gold: #f59e0b;
+      --silver: #94a3b8;
+      --bronze: #b45309;
+      --radius: 14px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top center, #131d33, #090d16);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: clamp(12px, 3vw, 28px);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    header {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    .brand h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .evaluator-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 1024px) {
+      .evaluator-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: clamp(16px, 2.5vw, 24px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-weight: 600;
+    }
+
+    .presets-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .preset-btn {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .preset-btn.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(236, 72, 153, 0.25));
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .sliders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .slider-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 500;
+    }
+
+    .slider-val {
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 7px;
+      border-radius: 4px;
+      background: var(--surface);
+      outline: none;
+      border: 1px solid var(--card-border);
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-glow);
+      transition: transform 0.15s;
+    }
+
+    .range-input::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .inclusion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .inc-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--card-border);
+    }
+
+    .inc-label input[type="checkbox"] {
+      accent-color: var(--accent);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table.leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    table.leaderboard-table th {
+      padding: 10px 14px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--card-border);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.8px;
+    }
+
+    table.leaderboard-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+      transition: background 0.3s;
+    }
+
+    table.leaderboard-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    .rank-1 { background: #f59e0b; color: #000; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+    .rank-2 { background: #94a3b8; color: #000; }
+    .rank-3 { background: #b45309; color: #fff; }
+    .rank-other { background: var(--surface); color: var(--text-muted); }
+
+    .score-bar-inline {
+      width: 100%;
+      height: 8px;
+      background: var(--surface);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #10b981);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .chart-container {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+    }
+
+    .bar-label {
+      width: 160px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #38bdf8);
+      border-radius: 6px;
+      transition: width 0.4s ease, background 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .bar-val {
+      width: 50px;
+      text-align: right;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-box {
+      background: #151d30;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">⚖️</div>
+        <div>
+          <h1>Architecture Trade-Off Decision Matrix</h1>
+          <p>Multi-Criteria Weighted Evaluation & Real-Time Re-ranking Engine</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="resetToDefaults()">🔄 Reset</button>
+        <button class="btn" onclick="openAddCandidateModal()">➕ Add Option</button>
+      </div>
+    </header>
+
+    <div class="evaluator-grid">
+      
+      <!-- Weights, Presets, and Filters -->
+      <div class="card">
+        <div class="card-title">
+          Decision Strategy Presets
+          <span class="badge" id="activePresetBadge">Balanced Mode</span>
+        </div>
+
+        <div class="presets-container">
+          <button class="preset-btn active" id="presetBalanced" onclick="applyPreset('balanced')">⚖️ Balanced</button>
+          <button class="preset-btn" id="presetStartup" onclick="applyPreset('startup')">🚀 Startup Speed</button>
+          <button class="preset-btn" id="presetSecurity" onclick="applyPreset('security')">🔒 Enterprise Sec</button>
+          <button class="preset-btn" id="presetCost" onclick="applyPreset('cost')">💰 Cost Minimizer</button>
+        </div>
+
+        <div class="card-title" style="margin-top: 8px;">
+          5-Criteria Weight Sliders
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Normalized Scaling</span>
+        </div>
+
+        <div class="sliders-list">
+          <div class="slider-box">
+            <div class="slider-meta">
+              <span>Development Cost (Efficiency)</span>
+              <span class="slider-val" id="valCost">60%</span>
+            </div>
+            <input type="range" class="range-input" id="weightCost" min="0" max="100" value="60" oninput="onWeightChange()">
+          </div>
+
+          <div class="slider-box">
+            <div class="slider-meta">
+              <span>Scalability & Throughput</span>
+              <span class="slider-val" id="valScalability">75%</span>
+            </div>
+            <input type="range" class="range-input" id="weightScalability" min="0" max="100" value="75" oninput="onWeightChange()">
+          </div>
+
+          <div class="slider-box">
+            <div class="slider-meta">
+              <span>System Latency & Performance</span>
+              <span class="slider-val" id="valLatency">70%</span>
+            </div>
+            <input type="range" class="range-input" id="weightLatency" min="0" max="100" value="70" oninput="onWeightChange()">
+          </div>
+
+          <div class="slider-box">
+            <div class="slider-meta">
+              <span>Implementation Speed / TTM</span>
+              <span class="slider-val" id="valSpeed">65%</span>
+            </div>
+            <input type="range" class="range-input" id="weightSpeed" min="0" max="100" value="65" oninput="onWeightChange()">
+          </div>
+
+          <div class="slider-box">
+            <div class="slider-meta">
+              <span>Security & Compliance</span>
+              <span class="slider-val" id="valSecurity">80%</span>
+            </div>
+            <input type="range" class="range-input" id="weightSecurity" min="0" max="100" value="80" oninput="onWeightChange()">
+          </div>
+        </div>
+
+        <div class="card-title" style="margin-top: 8px;">
+          Candidate Inclusion Filter
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Head-to-Head</span>
+        </div>
+        <div class="inclusion-grid" id="inclusionFilterContainer"></div>
+
+      </div>
+
+      <!-- Live Table Leaderboard & Dynamic Bar Chart -->
+      <div style="display: flex; flex-direction: column; gap: 22px;">
+        
+        <div class="card">
+          <div class="card-title">
+            Live Leaderboard Standings
+            <span class="badge" id="winnerBadge">Leader: Calculating...</span>
+          </div>
+
+          <div class="table-container">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Rank</th>
+                  <th>Architecture Candidate</th>
+                  <th>Weighted Score</th>
+                  <th>Core Strengths</th>
+                  <th>Key Trade-Off</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            Dynamic Score Distribution Chart
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Real-time reactive visual bars</span>
+          </div>
+
+          <div class="chart-container" id="chartContainer"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <footer>
+      Architecture Trade-Off Decision Matrix • Designed & Built by Soubhagyya Bhattacharya
+    </footer>
+  </div>
+
+  <!-- Custom Option Modal -->
+  <div class="modal-backdrop" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">➕ Add Architecture Option</h3>
+        <button onclick="closeAddCandidateModal()" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Architecture Name:</label>
+        <input type="text" id="newArchName" class="input-field" placeholder="e.g. Event-Driven Microkernel">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label>Cost Efficiency (1-100):</label>
+          <input type="number" id="newScoreCost" class="input-field" min="1" max="100" value="70">
+        </div>
+        <div class="form-group">
+          <label>Scalability (1-100):</label>
+          <input type="number" id="newScoreScalability" class="input-field" min="1" max="100" value="85">
+        </div>
+        <div class="form-group">
+          <label>Latency (1-100):</label>
+          <input type="number" id="newScoreLatency" class="input-field" min="1" max="100" value="80">
+        </div>
+        <div class="form-group">
+          <label>Speed / TTM (1-100):</label>
+          <input type="number" id="newScoreSpeed" class="input-field" min="1" max="100" value="65">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Security & Compliance (1-100):</label>
+          <input type="number" id="newScoreSecurity" class="input-field" min="1" max="100" value="90">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Core Strength Summary:</label>
+        <input type="text" id="newArchStrength" class="input-field" placeholder="e.g. Ultra decoupled, isolated plugins">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+        <button class="btn btn-secondary" onclick="closeAddCandidateModal()">Cancel</button>
+        <button class="btn" onclick="saveNewCandidate()">Save & Re-Rank</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Author: Soubhagyya Bhattacharya
+    // Project: Multi-Criteria Architecture Trade-Off Decision Matrix
+
+    const defaultCandidates = [
+      {
+        id: "serverless",
+        name: "Serverless Microservices",
+        enabled: true,
+        scores: { cost: 85, scalability: 92, latency: 68, speed: 90, security: 74 },
+        strength: "Zero idle cost, instant autoscaling",
+        tradeoff: "Cold starts, vendor lock-in risks"
+      },
+      {
+        id: "monolith",
+        name: "Modular Monolith (Go/Rust)",
+        enabled: true,
+        scores: { cost: 80, scalability: 65, latency: 95, speed: 85, security: 82 },
+        strength: "Zero network hop latency, simple deploy",
+        tradeoff: "Single point of failure, scaling boundaries"
+      },
+      {
+        id: "edge",
+        name: "Edge Computing & Cloudflare Workers",
+        enabled: true,
+        scores: { cost: 72, scalability: 95, latency: 98, speed: 80, security: 80 },
+        strength: "Sub-10ms global end-user latency",
+        tradeoff: "Limited CPU execution limits, state sync"
+      },
+      {
+        id: "k8s",
+        name: "Hybrid Kubernetes Cluster",
+        enabled: true,
+        scores: { cost: 45, scalability: 96, latency: 85, speed: 50, security: 95 },
+        strength: "Complete multi-cloud portability & air-gap control",
+        tradeoff: "High DevOps cognitive load, cluster overhead"
+      }
+    ];
+
+    let candidates = JSON.parse(JSON.stringify(defaultCandidates));
+
+    const presets = {
+      balanced: { cost: 60, scalability: 75, latency: 70, speed: 65, security: 80, name: "Balanced Mode" },
+      startup: { cost: 85, scalability: 70, latency: 60, speed: 95, security: 45, name: "Startup Speed" },
+      security: { cost: 35, scalability: 85, latency: 75, speed: 40, security: 98, name: "Enterprise Sec" },
+      cost: { cost: 95, scalability: 60, latency: 60, speed: 70, security: 55, name: "Cost Minimizer" }
+    };
+
+    function getWeights() {
+      return {
+        cost: parseInt(document.getElementById("weightCost").value),
+        scalability: parseInt(document.getElementById("weightScalability").value),
+        latency: parseInt(document.getElementById("weightLatency").value),
+        speed: parseInt(document.getElementById("weightSpeed").value),
+        security: parseInt(document.getElementById("weightSecurity").value)
+      };
+    }
+
+    // Normalized weighted scoring: Total = Sum(Weight_i * Score_i) / Sum(Weights)
+    function calculateScores() {
+      const weights = getWeights();
+      const sumWeights = weights.cost + weights.scalability + weights.latency + weights.speed + weights.security;
+
+      candidates.forEach(cand => {
+        if (!cand.enabled || sumWeights === 0) {
+          cand.totalScore = 0;
+          return;
+        }
+
+        const weightedSum = (cand.scores.cost * weights.cost) +
+                            (cand.scores.scalability * weights.scalability) +
+                            (cand.scores.latency * weights.latency) +
+                            (cand.scores.speed * weights.speed) +
+                            (cand.scores.security * weights.security);
+
+        cand.totalScore = parseFloat((weightedSum / sumWeights).toFixed(1));
+      });
+    }
+
+    function render() {
+      calculateScores();
+
+      const activeCandidates = candidates
+        .filter(c => c.enabled)
+        .sort((a, b) => b.totalScore - a.totalScore);
+
+      const tbody = document.getElementById("leaderboardTbody");
+      tbody.innerHTML = "";
+
+      if (activeCandidates.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">No candidate selected. Enable at least one option.</td></tr>`;
+      } else {
+        activeCandidates.forEach((cand, idx) => {
+          const rank = idx + 1;
+          let rankClass = "rank-other";
+          if (rank === 1) rankClass = "rank-1";
+          else if (rank === 2) rankClass = "rank-2";
+          else if (rank === 3) rankClass = "rank-3";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+            <td><strong>${cand.name}</strong></td>
+            <td>
+              <div style="display: flex; justify-content: space-between; font-weight: 700; font-family: monospace;">
+                <span>${cand.totalScore} / 100</span>
+              </div>
+              <div class="score-bar-inline">
+                <div class="score-bar-fill" style="width: ${cand.totalScore}%"></div>
+              </div>
+            </td>
+            <td><span style="color: var(--success); font-size: 0.8rem;">✓ ${cand.strength}</span></td>
+            <td><span style="color: var(--danger); font-size: 0.8rem;">⚠ ${cand.tradeoff}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const winner = activeCandidates[0];
+        const winnerBadge = document.getElementById("winnerBadge");
+        winnerBadge.textContent = `Leader: ${winner.name} (${winner.totalScore} pts)`;
+        winnerBadge.style.color = "var(--gold)";
+      }
+
+      const chartEl = document.getElementById("chartContainer");
+      chartEl.innerHTML = "";
+
+      activeCandidates.forEach(cand => {
+        const barRow = document.createElement("div");
+        barRow.className = "bar-row";
+
+        let grad = "linear-gradient(90deg, #6366f1, #38bdf8)";
+        if (cand.totalScore >= 85) grad = "linear-gradient(90deg, #10b981, #34d399)";
+        else if (cand.totalScore < 70) grad = "linear-gradient(90deg, #f59e0b, #ef4444)";
+
+        barRow.innerHTML = `
+          <div class="bar-label" title="${cand.name}">${cand.name}</div>
+          <div class="bar-track">
+            <div class="bar-progress" style="width: ${cand.totalScore}%; background: ${grad};">
+              ${cand.totalScore}%
+            </div>
+          </div>
+          <div class="bar-val">${cand.totalScore}</div>
+        `;
+        chartEl.appendChild(barRow);
+      });
+
+      renderInclusionFilters();
+    }
+
+    function renderInclusionFilters() {
+      const container = document.getElementById("inclusionFilterContainer");
+      container.innerHTML = "";
+      candidates.forEach(cand => {
+        const label = document.createElement("label");
+        label.className = "inc-label";
+        label.innerHTML = `
+          <input type="checkbox" ${cand.enabled ? "checked" : ""} onchange="toggleCandidate('${cand.id}', this.checked)">
+          <span>${cand.name}</span>
+        `;
+        container.appendChild(label);
+      });
+    }
+
+    function toggleCandidate(id, isChecked) {
+      const cand = candidates.find(c => c.id === id);
+      if (cand) {
+        cand.enabled = isChecked;
+        render();
+      }
+    }
+
+    function onWeightChange() {
+      document.getElementById("valCost").textContent = document.getElementById("weightCost").value + "%";
+      document.getElementById("valScalability").textContent = document.getElementById("weightScalability").value + "%";
+      document.getElementById("valLatency").textContent = document.getElementById("weightLatency").value + "%";
+      document.getElementById("valSpeed").textContent = document.getElementById("weightSpeed").value + "%";
+      document.getElementById("valSecurity").textContent = document.getElementById("weightSecurity").value + "%";
+
+      document.querySelectorAll(".preset-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("activePresetBadge").textContent = "Custom Weights";
+      render();
+    }
+
+    function applyPreset(presetKey) {
+      const p = presets[presetKey];
+      if (!p) return;
+
+      document.getElementById("weightCost").value = p.cost;
+      document.getElementById("weightScalability").value = p.scalability;
+      document.getElementById("weightLatency").value = p.latency;
+      document.getElementById("weightSpeed").value = p.speed;
+      document.getElementById("weightSecurity").value = p.security;
+
+      document.getElementById("valCost").textContent = p.cost + "%";
+      document.getElementById("valScalability").textContent = p.scalability + "%";
+      document.getElementById("valLatency").textContent = p.latency + "%";
+      document.getElementById("valSpeed").textContent = p.speed + "%";
+      document.getElementById("valSecurity").textContent = p.security + "%";
+
+      document.querySelectorAll(".preset-btn").forEach(btn => btn.classList.remove("active"));
+      const btnId = "preset" + presetKey.charAt(0).toUpperCase() + presetKey.slice(1);
+      const activeBtn = document.getElementById(btnId);
+      if (activeBtn) activeBtn.classList.add("active");
+
+      document.getElementById("activePresetBadge").textContent = p.name;
+      render();
+    }
+
+    function resetToDefaults() {
+      candidates = JSON.parse(JSON.stringify(defaultCandidates));
+      applyPreset('balanced');
+    }
+
+    function openAddCandidateModal() {
+      document.getElementById("customModal").style.display = "flex";
+    }
+
+    function closeAddCandidateModal() {
+      document.getElementById("customModal").style.display = "none";
+    }
+
+    function saveNewCandidate() {
+      const name = document.getElementById("newArchName").value.trim();
+      if (!name) {
+        alert("Please specify a valid architecture name.");
+        return;
+      }
+
+      const cost = Math.min(100, Math.max(1, parseInt(document.getElementById("newScoreCost").value) || 50));
+      const scalability = Math.min(100, Math.max(1, parseInt(document.getElementById("newScoreScalability").value) || 50));
+      const latency = Math.min(100, Math.max(1, parseInt(document.getElementById("newScoreLatency").value) || 50));
+      const speed = Math.min(100, Math.max(1, parseInt(document.getElementById("newScoreSpeed").value) || 50));
+      const security = Math.min(100, Math.max(1, parseInt(document.getElementById("newScoreSecurity").value) || 50));
+      const strength = document.getElementById("newArchStrength").value.trim() || "Custom design criteria";
+
+      const newCand = {
+        id: "cand_" + Date.now(),
+        name: name,
+        enabled: true,
+        scores: { cost, scalability, latency, speed, security },
+        strength: strength,
+        tradeoff: "Requires benchmark validation"
+      };
+
+      candidates.push(newCand);
+      closeAddCandidateModal();
+      document.getElementById("newArchName").value = "";
+      document.getElementById("newArchStrength").value = "";
+      render();
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      applyPreset('balanced');
+    });
+  </script>
+</body>
+</html>
